@@ -7,7 +7,7 @@ import org.antlr.v4.runtime.tree.ErrorNode;
 import org.antlr.v4.runtime.tree.TerminalNode;
 
 public class CustomListener implements jythonListener {
-//    ctx is the whole tree which is obtained from previous steps.
+//    ctx is the whole tree obtained from previous steps.
 
     @Override
     public void enterProgram(jythonParser.ProgramContext ctx) {
