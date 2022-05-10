@@ -6,20 +6,29 @@ import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.ErrorNode;
 import org.antlr.v4.runtime.tree.TerminalNode;
 
+import java.util.ArrayList;
+
 public class CustomListener implements jythonListener {
 //    ctx is the whole tree obtained from previous steps.
+    private ArrayList<String> imports = new ArrayList<String>();
+    private ArrayList<String> classes = new ArrayList<String>();
+
 
     @Override
     public void enterProgram(jythonParser.ProgramContext ctx) {
+//        System.out.println(ctx.getText());
     }
 
     @Override
     public void exitProgram(jythonParser.ProgramContext ctx) {
+//        System.out.println(ctx.getText());
 
     }
 
     @Override
     public void enterImportclass(jythonParser.ImportclassContext ctx) {
+        String originalText = ctx.getText();
+        imports.add(originalText.replace("import", ""));
 
     }
 
@@ -30,12 +39,47 @@ public class CustomListener implements jythonListener {
 
     @Override
     public void enterClassDef(jythonParser.ClassDefContext ctx) {
-        System.out.println(ctx.getText());
+        String originalText = ctx.getText();
+        System.out.println(originalText);
+
+        String classString = "class";
+        int index = originalText.indexOf(classString);
+        int index_open = originalText.indexOf("(");
+        int index_close = originalText.indexOf(")");
+
+
+        int classNameIndex = index + classString.length();
+        String temp = originalText.substring(classNameIndex);
+        String className = temp.split("\\(")[0];
+        classes.add(className);
+
+        String insideCure = originalText.substring(index_open+1, index_close);
+        for (String s:insideCure.split(",")){
+            classes.add(s);
+        }
+
+        System.out.println(classes);
+
+
+
+//        String classString = "class";
+//        int index = originalText.indexOf(classString);
+//        while (index >= 0) {
+//
+//            int classNameIndex = index + classString.length();
+//            String temp = originalText.substring(classNameIndex);
+//
+//            String className = temp.split(" ")[0];
+//            System.out.println(className);
+//            index = originalText.indexOf("class", index + 1);
+//        }
+
 
     }
 
     @Override
     public void exitClassDef(jythonParser.ClassDefContext ctx) {
+//        System.out.println(ctx.getText());
 
     }
 
@@ -51,6 +95,7 @@ public class CustomListener implements jythonListener {
 
     @Override
     public void enterVarDec(jythonParser.VarDecContext ctx) {
+//        System.out.println(ctx.getText());
 
     }
 
@@ -297,5 +342,9 @@ public class CustomListener implements jythonListener {
     @Override
     public void exitEveryRule(ParserRuleContext parserRuleContext) {
 
+    }
+
+    public void print(){
+        System.out.println();
     }
 }

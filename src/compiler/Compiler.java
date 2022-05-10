@@ -23,6 +23,7 @@ public class Compiler {
         ParseTreeWalker walker = new ParseTreeWalker();
         jythonListener listener = new CustomListener();
 
+        walker.walk(listener, tree);
 
 
 
