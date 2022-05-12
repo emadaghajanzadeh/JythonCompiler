@@ -12,10 +12,13 @@ public class CustomListener implements jythonListener {
 //    ctx is the whole tree obtained from previous steps.
     private ArrayList<String> imports = new ArrayList<String>();
     private ArrayList<String> classes = new ArrayList<String>();
-
+    public String arguments = "parameters list: [";
+    private int indentNum = 0;
 
     @Override
     public void enterProgram(jythonParser.ProgramContext ctx) {
+        System.out.println("Program Start{");
+        indentNum += 1;
 //        System.out.println(ctx.getText());
     }
 
@@ -27,8 +30,10 @@ public class CustomListener implements jythonListener {
 
     @Override
     public void enterImportclass(jythonParser.ImportclassContext ctx) {
-        String originalText = ctx.getText();
-        imports.add(originalText.replace("import", ""));
+        System.out.println(getIndent()+ "import class: "+ctx.CLASSNAME().getText());
+
+//        String originalText = ctx.getText();
+//        imports.add(originalText.replace("import", ""));
 
     }
 
@@ -39,48 +44,21 @@ public class CustomListener implements jythonListener {
 
     @Override
     public void enterClassDef(jythonParser.ClassDefContext ctx) {
-        String originalText = ctx.getText();
-        System.out.println(originalText);
-
-        String classString = "class";
-        int index = originalText.indexOf(classString);
-        int index_open = originalText.indexOf("(");
-        int index_close = originalText.indexOf(")");
-
-
-        int classNameIndex = index + classString.length();
-        String temp = originalText.substring(classNameIndex);
-        String className = temp.split("\\(")[0];
-        classes.add(className);
-
-        String insideCure = originalText.substring(index_open+1, index_close);
-        for (String s:insideCure.split(",")){
-            classes.add(s);
+        String classDef = getIndent();
+        classDef = classDef + "class: "+ ctx.CLASSNAME(0);
+        if (ctx.CLASSNAME().size()>=2) classDef = classDef + "/ class parents: ";
+        for (int i = 1 ; i<ctx.CLASSNAME().size(); i++){
+            classDef = classDef + ctx.CLASSNAME(i) + ",";
         }
-
-        System.out.println(classes);
-
-
-
-//        String classString = "class";
-//        int index = originalText.indexOf(classString);
-//        while (index >= 0) {
-//
-//            int classNameIndex = index + classString.length();
-//            String temp = originalText.substring(classNameIndex);
-//
-//            String className = temp.split(" ")[0];
-//            System.out.println(className);
-//            index = originalText.indexOf("class", index + 1);
-//        }
-
-
+        classDef = classDef + " {";
+        indentNum++;
+        System.out.println(classDef);
     }
 
     @Override
     public void exitClassDef(jythonParser.ClassDefContext ctx) {
-//        System.out.println(ctx.getText());
-
+        System.out.println("}");
+        indentNum --;
     }
 
     @Override
@@ -95,7 +73,29 @@ public class CustomListener implements jythonListener {
 
     @Override
     public void enterVarDec(jythonParser.VarDecContext ctx) {
-//        System.out.println(ctx.getText());
+        String id = "";
+        String type_ = "";
+        String class_name = "";
+        if(ctx.ID() != null){
+            id = ctx.ID().getText();
+        }
+        if(ctx.TYPE() != null){
+            type_ = ctx.TYPE().getText();
+        }
+        if (ctx.CLASSNAME() != null){
+            class_name = ctx.CLASSNAME().getText();
+        }
+        if (ctx.getParent() instanceof jythonParser.ParameterContext){
+            arguments = arguments + class_name + type_ +
+                    " " + id + ",";
+        }
+        else {
+            if (ctx.CLASSNAME() != null) {
+                class_name = ctx.CLASSNAME().getText();
+            }
+            System.out.println(getIndent() + "field: " + id + "/ type= " + class_name + type_);
+        }
+
 
     }
 
@@ -106,6 +106,19 @@ public class CustomListener implements jythonListener {
 
     @Override
     public void enterArrayDec(jythonParser.ArrayDecContext ctx) {
+        String id = "";
+        String type_ = "";
+        String class_name = "";
+        if(ctx.ID() != null){
+            id = ctx.ID().getText();
+        }
+        if(ctx.TYPE() != null){
+            type_ = ctx.TYPE().getText();
+        }
+        if (ctx.CLASSNAME() != null){
+            class_name = ctx.CLASSNAME().getText();
+        }
+        System.out.println(getIndent() + "field: " + id + "/ type= " + class_name + type_);
 
     }
 
@@ -116,22 +129,48 @@ public class CustomListener implements jythonListener {
 
     @Override
     public void enterMethodDec(jythonParser.MethodDecContext ctx) {
+        String id = "";
+        String type_ = "";
+        String class_name = "";
+        if(ctx.ID() != null){
+            id = ctx.ID().getText();
+        }
+        if(ctx.TYPE() != null){
+            type_ = ctx.TYPE().getText();
+        }
+        if (ctx.CLASSNAME() != null){
+            class_name = ctx.CLASSNAME().getText();
+        }
+
+        if(type_.equals("") && class_name.equals("")){
+            System.out.println(getIndent() + "class method: " + id + "{");
+        }
+        else {
+            System.out.println(getIndent() + "class method: " + id + "/ return type: " +
+                    type_ + class_name + "{");
+        }
+        indentNum = indentNum + 1;
 
     }
 
     @Override
     public void exitMethodDec(jythonParser.MethodDecContext ctx) {
-
+        System.out.println(getIndent() + arguments + "]");
+        arguments = "parameters list: [";
+        System.out.println(getIndent() + "}");
+        indentNum = indentNum - 1;
     }
 
     @Override
     public void enterConstructor(jythonParser.ConstructorContext ctx) {
-
+        System.out.println(getIndent() + "class constructor: " + ctx.CLASSNAME().getText() + "{");
+        indentNum = indentNum + 1;
     }
 
     @Override
     public void exitConstructor(jythonParser.ConstructorContext ctx) {
-
+        System.out.println(getIndent() + "}");
+        indentNum = indentNum - 1;
     }
 
     @Override
@@ -344,7 +383,11 @@ public class CustomListener implements jythonListener {
 
     }
 
-    public void print(){
-        System.out.println();
+    private String getIndent(){
+        String s = "";
+        for (int i = 0; i < indentNum; i++){
+            s = s + "\t";
+        }
+        return s;
     }
 }

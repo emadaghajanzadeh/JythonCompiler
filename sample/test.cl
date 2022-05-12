@@ -1,6 +1,6 @@
 import Nothing
 import Nothing2
-class Human(Nothing, Nothing2){
+class Human(Nothing, Nothing2, Nothing3){
     Nose nose
     Hand[2] hands
     Leg[2] legs
