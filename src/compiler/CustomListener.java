@@ -73,6 +73,21 @@ public class CustomListener implements jythonListener {
 
     @Override
     public void enterVarDec(jythonParser.VarDecContext ctx) {
+        //Each Variable has either (ID, TYPE) or (ID, CLASSNAME).
+        // The former is for pre-declared variable types and the later is for newly declared variables such as class objects.
+//        System.out.println(ctx.getText());
+//        System.out.println(ctx.ID().getText());
+//        try {
+//            System.out.println(ctx.TYPE().getText());
+//        }catch (Exception e){
+//            System.out.println("-");
+//        }
+//        try {
+//            System.out.println(ctx.CLASSNAME().getText());
+//        }catch(Exception e1){
+//            System.out.println("-");
+//        }
+//        System.out.println(ctx.getParent());
         String id = "";
         String type_ = "";
         String class_name = "";
@@ -85,6 +100,8 @@ public class CustomListener implements jythonListener {
         if (ctx.CLASSNAME() != null){
             class_name = ctx.CLASSNAME().getText();
         }
+
+        //Detect inputs of a function.
         if (ctx.getParent() instanceof jythonParser.ParameterContext){
             arguments = arguments + class_name + type_ +
                     " " + id + ",";
@@ -106,19 +123,20 @@ public class CustomListener implements jythonListener {
 
     @Override
     public void enterArrayDec(jythonParser.ArrayDecContext ctx) {
-        String id = "";
-        String type_ = "";
-        String class_name = "";
-        if(ctx.ID() != null){
-            id = ctx.ID().getText();
-        }
-        if(ctx.TYPE() != null){
-            type_ = ctx.TYPE().getText();
-        }
-        if (ctx.CLASSNAME() != null){
-            class_name = ctx.CLASSNAME().getText();
-        }
-        System.out.println(getIndent() + "field: " + id + "/ type= " + class_name + type_);
+//        System.out.println(ctx.getText());
+//        String id = "";
+//        String type_ = "";
+//        String class_name = "";
+//        if(ctx.ID() != null){
+//            id = ctx.ID().getText();
+//        }
+//        if(ctx.TYPE() != null){
+//            type_ = ctx.TYPE().getText();
+//        }
+//        if (ctx.CLASSNAME() != null){
+//            class_name = ctx.CLASSNAME().getText();
+//        }
+//        System.out.println(getIndent() + "field: " + id + "/ type= " + class_name + type_);
 
     }
 
@@ -143,11 +161,11 @@ public class CustomListener implements jythonListener {
         }
 
         if(type_.equals("") && class_name.equals("")){
-            System.out.println(getIndent() + "class method: " + id + "{");
+//            System.out.println(getIndent() + "class method: " + id + "{");
         }
         else {
-            System.out.println(getIndent() + "class method: " + id + "/ return type: " +
-                    type_ + class_name + "{");
+//            System.out.println(getIndent() + "class method: " + id + "/ return type: " +
+//                    type_ + class_name + "{");
         }
         indentNum = indentNum + 1;
 
@@ -155,9 +173,9 @@ public class CustomListener implements jythonListener {
 
     @Override
     public void exitMethodDec(jythonParser.MethodDecContext ctx) {
-        System.out.println(getIndent() + arguments + "]");
+//        System.out.println(getIndent() + arguments + "]");
         arguments = "parameters list: [";
-        System.out.println(getIndent() + "}");
+//        System.out.println(getIndent() + "}");
         indentNum = indentNum - 1;
     }
 
@@ -169,6 +187,8 @@ public class CustomListener implements jythonListener {
 
     @Override
     public void exitConstructor(jythonParser.ConstructorContext ctx) {
+        System.out.println(getIndent() + arguments + "]");
+        arguments = "parameters list: [";
         System.out.println(getIndent() + "}");
         indentNum = indentNum - 1;
     }
