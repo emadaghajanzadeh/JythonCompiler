@@ -7,24 +7,42 @@ import org.antlr.v4.runtime.tree.ErrorNode;
 import org.antlr.v4.runtime.tree.TerminalNode;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 public class CustomListener implements jythonListener {
 //    ctx is the whole tree obtained from previous steps.
     private ArrayList<String> imports = new ArrayList<String>();
     private ArrayList<String> classes = new ArrayList<String>();
+
+    public int isInsideIf = 0;
+    public int isInsideWhile = 0;
+    public int isInsideIfElse = 0;
+    public int isInsideFor = 0;
+//    private ArrayList<Boolean> instructions = new ArrayList<Boolean>();
+    private int[] instructions = new int[4];
+
     public String arguments = "parameters list: [";
     private int indentNum = 0;
 
     @Override
     public void enterProgram(jythonParser.ProgramContext ctx) {
         System.out.println("Program Start{");
-        indentNum += 1;
+        indentNum ++;
+        instructions[0] = isInsideIf;
+        instructions[1] = isInsideWhile;
+        instructions[2] = isInsideIfElse;
+        instructions[3] = isInsideFor;
+
 //        System.out.println(ctx.getText());
     }
 
     @Override
     public void exitProgram(jythonParser.ProgramContext ctx) {
 //        System.out.println(ctx.getText());
+        indentNum--;
+        System.out.println( getIndent() + "}");
 
     }
 
@@ -57,8 +75,9 @@ public class CustomListener implements jythonListener {
 
     @Override
     public void exitClassDef(jythonParser.ClassDefContext ctx) {
-        System.out.println("}");
         indentNum --;
+        System.out.println(getIndent() + "}");
+
     }
 
     @Override
@@ -167,32 +186,34 @@ public class CustomListener implements jythonListener {
             System.out.println(getIndent() + "class method: " + id + "/ return type: " +
                     type_ + class_name + "{");
         }
-        indentNum = indentNum + 1;
+        indentNum++;
 
     }
 
     @Override
     public void exitMethodDec(jythonParser.MethodDecContext ctx) {
-        if (arguments != "parameters list: ["){
+
+        if (arguments != "parameters list: ["){ //if it had input arguments
             System.out.println(getIndent() + arguments + "]");
             arguments = "parameters list: [";
         }
+        indentNum--;
         System.out.println(getIndent() + "}");
-        indentNum = indentNum - 1;
+
     }
 
     @Override
     public void enterConstructor(jythonParser.ConstructorContext ctx) {
         System.out.println(getIndent() + "class constructor: " + ctx.CLASSNAME().getText() + "{");
-        indentNum = indentNum + 1;
+        indentNum++;
     }
 
     @Override
     public void exitConstructor(jythonParser.ConstructorContext ctx) {
         System.out.println(getIndent() + arguments + "]");
         arguments = "parameters list: [";
+        indentNum--;
         System.out.println(getIndent() + "}");
-        indentNum = indentNum - 1;
     }
 
     @Override
@@ -247,32 +268,32 @@ public class CustomListener implements jythonListener {
 
     @Override
     public void enterIf_statment(jythonParser.If_statmentContext ctx) {
-
+        nestedStatementDetection("if");
     }
 
     @Override
     public void exitIf_statment(jythonParser.If_statmentContext ctx) {
-
+        nestedStatementExit("if");
     }
 
     @Override
     public void enterWhile_statment(jythonParser.While_statmentContext ctx) {
-
+        nestedStatementDetection("while");
     }
 
     @Override
     public void exitWhile_statment(jythonParser.While_statmentContext ctx) {
-
+        nestedStatementExit("while");
     }
 
     @Override
     public void enterIf_else_statment(jythonParser.If_else_statmentContext ctx) {
-
+        nestedStatementDetection("if-else");
     }
 
     @Override
     public void exitIf_else_statment(jythonParser.If_else_statmentContext ctx) {
-
+        nestedStatementExit("if-else");
     }
 
     @Override
@@ -287,12 +308,12 @@ public class CustomListener implements jythonListener {
 
     @Override
     public void enterFor_statment(jythonParser.For_statmentContext ctx) {
-
+        nestedStatementDetection("for");
     }
 
     @Override
     public void exitFor_statment(jythonParser.For_statmentContext ctx) {
-
+        nestedStatementExit("for");
     }
 
     @Override
@@ -411,5 +432,41 @@ public class CustomListener implements jythonListener {
             s = s + "\t";
         }
         return s;
+    }
+
+    private void nestedStatementDetection(String inst){
+        for(int instructNum: instructions){
+            if(instructNum>0){
+                System.out.println(getIndent() + "nested statement{");
+                indentNum++;
+                break;
+            }
+        }
+        if (inst == "if"){
+            instructions[0]++;
+        }else if(inst == "while"){
+            instructions[1]++;
+        }else if (inst == "if-else"){
+            instructions[2]++;
+        }else if (inst == "for"){
+            instructions[3]++;
+        }
+    }
+
+    private void nestedStatementExit(String inst){
+
+        if ((instructions[0]+instructions[1]+instructions[2]+instructions[3])>1){    //if we have created a nested loop for this inst already, then we should now close its brackets.
+            indentNum--;
+            System.out.println(getIndent() + "}");
+        }
+        if (inst == "if"){
+            instructions[0]--;
+        }else if(inst == "while"){
+            instructions[1]--;
+        }else if (inst == "if-else"){
+            instructions[2]--;
+        }else if (inst == "for"){
+            instructions[3]--;
+        }
     }
 }

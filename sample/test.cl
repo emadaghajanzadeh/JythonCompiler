@@ -1,6 +1,6 @@
 import Nothing
 import Nothing2
-class Human(Nothing, Nothing2){
+class Human{
     Nose nose
     Hand[2] hands
     Leg[2] legs
@@ -17,10 +17,17 @@ class Human(Nothing, Nothing2){
     def void eat(Food food, int c){
         calories += c
         newFood = food
+        int o = 5
         while(self.isHungry){
-            Food newFood = Food()
-            eat(newFood)
-            self.isHungry = self.checkIsHungry()
+            if(a == 0){
+                if(a == 10){
+                    for i in range(0,5){
+                        Food newFood = Food()
+                        eat(newFood)
+                        self.isHungry = self.checkIsHungry()
+                    }
+                }
+            }
         }
     }
     def bool checkIsHungry(){
