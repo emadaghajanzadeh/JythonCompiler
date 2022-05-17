@@ -124,19 +124,19 @@ public class CustomListener implements jythonListener {
     @Override
     public void enterArrayDec(jythonParser.ArrayDecContext ctx) {
 //        System.out.println(ctx.getText());
-//        String id = "";
-//        String type_ = "";
-//        String class_name = "";
-//        if(ctx.ID() != null){
-//            id = ctx.ID().getText();
-//        }
-//        if(ctx.TYPE() != null){
-//            type_ = ctx.TYPE().getText();
-//        }
-//        if (ctx.CLASSNAME() != null){
-//            class_name = ctx.CLASSNAME().getText();
-//        }
-//        System.out.println(getIndent() + "field: " + id + "/ type= " + class_name + type_);
+        String id = "";
+        String type_ = "";
+        String class_name = "";
+        if(ctx.ID() != null){
+            id = ctx.ID().getText();
+        }
+        if(ctx.TYPE() != null){
+            type_ = ctx.TYPE().getText();
+        }
+        if (ctx.CLASSNAME() != null){
+            class_name = ctx.CLASSNAME().getText();
+        }
+        System.out.println(getIndent() + "field: " + id + "/ type= " + class_name + type_);
 
     }
 
@@ -161,11 +161,11 @@ public class CustomListener implements jythonListener {
         }
 
         if(type_.equals("") && class_name.equals("")){
-//            System.out.println(getIndent() + "class method: " + id + "{");
+            System.out.println(getIndent() + "class method: " + id + "{");
         }
         else {
-//            System.out.println(getIndent() + "class method: " + id + "/ return type: " +
-//                    type_ + class_name + "{");
+            System.out.println(getIndent() + "class method: " + id + "/ return type: " +
+                    type_ + class_name + "{");
         }
         indentNum = indentNum + 1;
 
@@ -173,9 +173,11 @@ public class CustomListener implements jythonListener {
 
     @Override
     public void exitMethodDec(jythonParser.MethodDecContext ctx) {
-//        System.out.println(getIndent() + arguments + "]");
-        arguments = "parameters list: [";
-//        System.out.println(getIndent() + "}");
+        if (arguments != "parameters list: ["){
+            System.out.println(getIndent() + arguments + "]");
+            arguments = "parameters list: [";
+        }
+        System.out.println(getIndent() + "}");
         indentNum = indentNum - 1;
     }
 
