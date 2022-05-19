@@ -12,7 +12,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class CustomListener implements jythonListener {
-//    ctx is the whole tree obtained from previous steps.
+    // ctx is the whole tree obtained from previous steps.
     private ArrayList<String> imports = new ArrayList<String>();
     private ArrayList<String> classes = new ArrayList<String>();
 
@@ -20,7 +20,7 @@ public class CustomListener implements jythonListener {
     public int isInsideWhile = 0;
     public int isInsideIfElse = 0;
     public int isInsideFor = 0;
-//    private ArrayList<Boolean> instructions = new ArrayList<Boolean>();
+    // private ArrayList<Boolean> instructions = new ArrayList<Boolean>();
     private int[] instructions = new int[4];
 
     public String arguments = "parameters list: [";
@@ -29,29 +29,29 @@ public class CustomListener implements jythonListener {
     @Override
     public void enterProgram(jythonParser.ProgramContext ctx) {
         System.out.println("Program Start{");
-        indentNum ++;
+        indentNum++;
         instructions[0] = isInsideIf;
         instructions[1] = isInsideWhile;
         instructions[2] = isInsideIfElse;
         instructions[3] = isInsideFor;
 
-//        System.out.println(ctx.getText());
+        // System.out.println(ctx.getText());
     }
 
     @Override
     public void exitProgram(jythonParser.ProgramContext ctx) {
-//        System.out.println(ctx.getText());
+        // System.out.println(ctx.getText());
         indentNum--;
-        System.out.println( getIndent() + "}");
+        System.out.println(getIndent() + "}");
 
     }
 
     @Override
     public void enterImportclass(jythonParser.ImportclassContext ctx) {
-        System.out.println(getIndent()+ "import class: "+ctx.CLASSNAME().getText());
+        System.out.println(getIndent() + "import class: " + ctx.CLASSNAME().getText());
 
-//        String originalText = ctx.getText();
-//        imports.add(originalText.replace("import", ""));
+        // String originalText = ctx.getText();
+        // imports.add(originalText.replace("import", ""));
 
     }
 
@@ -63,9 +63,10 @@ public class CustomListener implements jythonListener {
     @Override
     public void enterClassDef(jythonParser.ClassDefContext ctx) {
         String classDef = getIndent();
-        classDef = classDef + "class: "+ ctx.CLASSNAME(0);
-        if (ctx.CLASSNAME().size()>=2) classDef = classDef + "/ class parents: ";
-        for (int i = 1 ; i<ctx.CLASSNAME().size(); i++){
+        classDef = classDef + "class: " + ctx.CLASSNAME(0);
+        if (ctx.CLASSNAME().size() >= 2)
+            classDef = classDef + "/ class parents: ";
+        for (int i = 1; i < ctx.CLASSNAME().size(); i++) {
             classDef = classDef + ctx.CLASSNAME(i) + ",";
         }
         classDef = classDef + " {";
@@ -75,7 +76,7 @@ public class CustomListener implements jythonListener {
 
     @Override
     public void exitClassDef(jythonParser.ClassDefContext ctx) {
-        indentNum --;
+        indentNum--;
         System.out.println(getIndent() + "}");
 
     }
@@ -92,46 +93,45 @@ public class CustomListener implements jythonListener {
 
     @Override
     public void enterVarDec(jythonParser.VarDecContext ctx) {
-        //Each Variable has either (ID, TYPE) or (ID, CLASSNAME).
-        // The former is for pre-declared variable types and the later is for newly declared variables such as class objects.
-//        System.out.println(ctx.getText());
-//        System.out.println(ctx.ID().getText());
-//        try {
-//            System.out.println(ctx.TYPE().getText());
-//        }catch (Exception e){
-//            System.out.println("-");
-//        }
-//        try {
-//            System.out.println(ctx.CLASSNAME().getText());
-//        }catch(Exception e1){
-//            System.out.println("-");
-//        }
-//        System.out.println(ctx.getParent());
+        // Each Variable has either (ID, TYPE) or (ID, CLASSNAME).
+        // The former is for pre-declared variable types and the later is for newly
+        // declared variables such as class objects.
+        // System.out.println(ctx.getText());
+        // System.out.println(ctx.ID().getText());
+        // try {
+        // System.out.println(ctx.TYPE().getText());
+        // }catch (Exception e){
+        // System.out.println("-");
+        // }
+        // try {
+        // System.out.println(ctx.CLASSNAME().getText());
+        // }catch(Exception e1){
+        // System.out.println("-");
+        // }
+        // System.out.println(ctx.getParent());
         String id = "";
         String type_ = "";
         String class_name = "";
-        if(ctx.ID() != null){
+        if (ctx.ID() != null) {
             id = ctx.ID().getText();
         }
-        if(ctx.TYPE() != null){
+        if (ctx.TYPE() != null) {
             type_ = ctx.TYPE().getText();
         }
-        if (ctx.CLASSNAME() != null){
+        if (ctx.CLASSNAME() != null) {
             class_name = ctx.CLASSNAME().getText();
         }
 
-        //Detect inputs of a function.
-        if (ctx.getParent() instanceof jythonParser.ParameterContext){
+        // Detect inputs of a function.
+        if (ctx.getParent() instanceof jythonParser.ParameterContext) {
             arguments = arguments + class_name + type_ +
                     " " + id + ",";
-        }
-        else {
+        } else {
             if (ctx.CLASSNAME() != null) {
                 class_name = ctx.CLASSNAME().getText();
             }
             System.out.println(getIndent() + "field: " + id + "/ type= " + class_name + type_);
         }
-
 
     }
 
@@ -142,17 +142,17 @@ public class CustomListener implements jythonListener {
 
     @Override
     public void enterArrayDec(jythonParser.ArrayDecContext ctx) {
-//        System.out.println(ctx.getText());
+        // System.out.println(ctx.getText());
         String id = "";
         String type_ = "";
         String class_name = "";
-        if(ctx.ID() != null){
+        if (ctx.ID() != null) {
             id = ctx.ID().getText();
         }
-        if(ctx.TYPE() != null){
+        if (ctx.TYPE() != null) {
             type_ = ctx.TYPE().getText();
         }
-        if (ctx.CLASSNAME() != null){
+        if (ctx.CLASSNAME() != null) {
             class_name = ctx.CLASSNAME().getText();
         }
         System.out.println(getIndent() + "field: " + id + "/ type= " + class_name + type_);
@@ -171,19 +171,18 @@ public class CustomListener implements jythonListener {
         String class_name = "";
         boolean isMain = false;
 
-        if(ctx.ID() != null){
+        if (ctx.ID() != null) {
             id = ctx.ID().getText();
         }
-        if(ctx.ID().getText().equals("main")){
+        if (ctx.ID().getText().equals("main")) {
             isMain = true;
         }
-        if(ctx.TYPE() != null){
+        if (ctx.TYPE() != null) {
             type_ = ctx.TYPE().getText();
         }
-        if (ctx.CLASSNAME() != null){
+        if (ctx.CLASSNAME() != null) {
             class_name = ctx.CLASSNAME().getText();
         }
-
 
         if (!isMain) {
             if (type_.equals("") && class_name.equals("")) {
@@ -192,7 +191,7 @@ public class CustomListener implements jythonListener {
                 System.out.println(getIndent() + "class method: " + id + "/ return type: " +
                         type_ + class_name + "{");
             }
-        }else{
+        } else {
             if (type_.equals("") && class_name.equals("")) {
                 System.out.println(getIndent() + "main method: " + "{");
             } else {
@@ -207,7 +206,7 @@ public class CustomListener implements jythonListener {
     @Override
     public void exitMethodDec(jythonParser.MethodDecContext ctx) {
 
-        if (arguments != "parameters list: ["){ //if it had input arguments
+        if (arguments != "parameters list: [") { // if it had input arguments
             System.out.println(getIndent() + arguments + "]");
             arguments = "parameters list: [";
         }
@@ -440,46 +439,49 @@ public class CustomListener implements jythonListener {
 
     }
 
-    private String getIndent(){
+    private String getIndent() {
         String s = "";
-        for (int i = 0; i < indentNum; i++){
-            s = s + "\t";
+        for (int i = 0; i < indentNum; i++) {
+            s = s + "    ";
         }
         return s;
     }
 
-    private void nestedStatementDetection(String inst){
-        for(int instructNum: instructions){
-            if(instructNum>0){
+    private void nestedStatementDetection(String inst) {
+        for (int instructNum : instructions) {
+            if (instructNum > 0) {
                 System.out.println(getIndent() + "nested statement{");
                 indentNum++;
                 break;
             }
         }
-        if (inst == "if"){
+        if (inst == "if") {
             instructions[0]++;
-        }else if(inst == "while"){
+        } else if (inst == "while") {
             instructions[1]++;
-        }else if (inst == "if-else"){
+        } else if (inst == "if-else") {
             instructions[2]++;
-        }else if (inst == "for"){
+        } else if (inst == "for") {
             instructions[3]++;
         }
     }
 
-    private void nestedStatementExit(String inst){
+    private void nestedStatementExit(String inst) {
 
-        if ((instructions[0]+instructions[1]+instructions[2]+instructions[3])>1){    //if we have created a nested loop for this inst already, then we should now close its brackets.
+        if ((instructions[0] + instructions[1] + instructions[2] + instructions[3]) > 1) { // if we have created a
+                                                                                           // nested loop for this inst
+                                                                                           // already, then we should
+                                                                                           // now close its brackets.
             indentNum--;
             System.out.println(getIndent() + "}");
         }
-        if (inst == "if"){
+        if (inst == "if") {
             instructions[0]--;
-        }else if(inst == "while"){
+        } else if (inst == "while") {
             instructions[1]--;
-        }else if (inst == "if-else"){
+        } else if (inst == "if-else") {
             instructions[2]--;
-        }else if (inst == "for"){
+        } else if (inst == "for") {
             instructions[3]--;
         }
     }
