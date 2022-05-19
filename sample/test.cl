@@ -30,6 +30,10 @@ class Human{
             }
         }
     }
+
+    def bool main(int x){
+        return false
+    }
     def bool checkIsHungry(){
         return true
     }

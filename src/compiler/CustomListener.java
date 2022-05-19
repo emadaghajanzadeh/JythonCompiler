@@ -169,8 +169,13 @@ public class CustomListener implements jythonListener {
         String id = "";
         String type_ = "";
         String class_name = "";
+        boolean isMain = false;
+
         if(ctx.ID() != null){
             id = ctx.ID().getText();
+        }
+        if(ctx.ID().getText().equals("main")){
+            isMain = true;
         }
         if(ctx.TYPE() != null){
             type_ = ctx.TYPE().getText();
@@ -179,12 +184,21 @@ public class CustomListener implements jythonListener {
             class_name = ctx.CLASSNAME().getText();
         }
 
-        if(type_.equals("") && class_name.equals("")){
-            System.out.println(getIndent() + "class method: " + id + "{");
-        }
-        else {
-            System.out.println(getIndent() + "class method: " + id + "/ return type: " +
-                    type_ + class_name + "{");
+
+        if (!isMain) {
+            if (type_.equals("") && class_name.equals("")) {
+                System.out.println(getIndent() + "class method: " + id + "{");
+            } else {
+                System.out.println(getIndent() + "class method: " + id + "/ return type: " +
+                        type_ + class_name + "{");
+            }
+        }else{
+            if (type_.equals("") && class_name.equals("")) {
+                System.out.println(getIndent() + "main method: " + "{");
+            } else {
+                System.out.println(getIndent() + "main method: " + "/ return type: " +
+                        type_ + class_name + "{");
+            }
         }
         indentNum++;
 
